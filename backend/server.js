@@ -23,7 +23,7 @@ const port = process.env.PORT || 5555;
 // Allow CORS from the frontend and allow credentials (cookies) to be sent.
 // Replace the origin below with your frontend origin in production.
 app.use(cors({
-    origin: 'http://localhost:5174',
+    origin: 'https://fb-pro-front-p807t5c74-duedulls-projects.vercel.app/',
     credentials: true, //only this way cookies can be recieved
 }));
 

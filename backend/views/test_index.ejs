@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Server Info</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-900 text-gray-100 p-6">
+    <div class="max-w-5xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6">🚀 Server & System Info</h1>
+
+      <!-- System Info -->
+      <div class="mb-6 p-4 bg-gray-800 rounded-xl shadow">
+        <h2 class="text-xl font-semibold mb-2">🖥 System</h2>
+        <ul class="space-y-1">
+          <li><b>Platform:</b> <%= serverInfo.system.platform %></li>
+          <li><b>Arch:</b> <%= serverInfo.system.arch %></li>
+          <li><b>CPU Count:</b> <%= serverInfo.system.cpuCount %></li>
+          <li>
+            <b>CPUs:</b>
+            <ul class="list-disc ml-6">
+              <% serverInfo.system.cpus.forEach(cpu => { %>
+              <li><%= cpu %></li>
+              <% }) %>
+            </ul>
+          </li>
+          <li>
+            <b>Total Memory:</b> <%= (serverInfo.system.totalMem / 1024 /
+            1024).toFixed(2) %> MB
+          </li>
+          <li>
+            <b>Free Memory:</b> <%= (serverInfo.system.freeMem / 1024 /
+            1024).toFixed(2) %> MB
+          </li>
+          <li>
+            <b>Uptime:</b> <%= (serverInfo.system.uptime / 60).toFixed(2) %>
+            minutes
+          </li>
+          <li><b>Hostname:</b> <%= serverInfo.system.hostname %></li>
+        </ul>
+      </div>
+
+      <!-- Request Info -->
+      <div class="mb-6 p-4 bg-gray-800 rounded-xl shadow">
+        <h2 class="text-xl font-semibold mb-2">📡 Request</h2>
+        <pre class="bg-gray-900 p-3 rounded text-sm overflow-x-auto">
+<%= JSON.stringify(serverInfo.request, null, 2) %>
+  </pre
+        >
+      </div>
+
+      <!-- Response Info -->
+      <div class="mb-6 p-4 bg-gray-800 rounded-xl shadow">
+        <h2 class="text-xl font-semibold mb-2">📩 Response</h2>
+        <pre class="bg-gray-900 p-3 rounded text-sm overflow-x-auto">
+<%= JSON.stringify(serverInfo.response, null, 2) %>
+  </pre
+        >
+      </div>
+
+      <!-- Page Info -->
+      <div class="mb-6 p-4 bg-gray-800 rounded-xl shadow">
+        <h2 class="text-xl font-semibold mb-2">📄 Page</h2>
+        <pre class="bg-gray-900 p-3 rounded text-sm overflow-x-auto">
+<%= JSON.stringify(serverInfo.page, null, 2) %>
+  </pre
+        >
+      </div>
+    </div>
+  </body>
+</html>

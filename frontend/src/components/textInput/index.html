@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Real Reddit-Style Threaded Comments (Fixed Lines)</title>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a1b;
+            color: #d7dadc;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        /* COMMENT WRAPPER */
+        .comment {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        /* NESTED THREAD CONTAINER */
+        .comment-thread {
+            margin-left: 32px;
+            /* spacing for nested comments */
+            padding-left: 20px;
+            position: relative;
+        }
+
+        /* VERTICAL LINE (FIXED) */
+        .thread-line {
+            position: absolute;
+            left: 6px;
+            /* perfect Reddit alignment */
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: currentColor;
+            opacity: 0.5;
+        }
+
+        /* CURVED CONNECTOR (FIXED) */
+        .thread-connector {
+            position: absolute;
+            left: 6px;
+            top: 32px;
+            width: 16px;
+            height: 16px;
+            border-left: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            border-bottom-left-radius: 8px;
+            background: transparent;
+            opacity: 0.7;
+        }
+
+        /* COMMENT BODY */
+        .comment-body {
+            background: #272729;
+            border: 1px solid #343536;
+            border-radius: 8px;
+            padding: 12px;
+            margin-left: 20px;
+            /* keeps the body aligned after connector */
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .author {
+            color: #ff4500;
+            font-weight: bold;
+        }
+
+        .time {
+            color: #818384;
+        }
+
+        .comment-text {
+            margin: 8px 0;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #818384;
+        }
+
+        .comment-actions button {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .load-replies {
+            margin: 8px 0;
+            color: #0079d3;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Collapse bar */
+        .collapse-bar {
+            position: absolute;
+            left: -6px;
+            top: 20px;
+            width: 22px;
+            height: 45px;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 4px;
+        }
+
+        .collapse-bar:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Reddit-like colors by depth */
+        .depth-0 {
+            color: #ff4500;
+        }
+
+        .depth-1 {
+            color: #0079d3;
+        }
+
+        .depth-2 {
+            color: #7193ff;
+        }
+
+        .depth-3 {
+            color: #9e4fd9;
+        }
+
+        .depth-4 {
+            color: #dd4b39;
+        }
+
+        .depth-5 {
+            color: #46d160;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div id="comments">
+
+        <!-- Top comment -->
+        <div class="comment depth-0" data-id="1">
+            <div class="thread-line"></div>
+
+            <div class="comment-body">
+                <div class="comment-header">
+                    <span class="author">@op</span>
+                    <span class="time">3 hours ago</span>
+                </div>
+
+                <div class="comment-text">This is the original post. Discussion below is wild 😂</div>
+
+                <div class="comment-actions">
+                    <button>↑ 156</button>
+                    <button>↓</button>
+                    <button onclick="replyTo(this)">Reply</button>
+                </div>
+
+                <div class="load-replies" onclick="loadReplies(this, 1)">↓ Load 7 replies</div>
+            </div>
+
+            <div class="comment-thread" id="replies-1"></div>
+        </div>
+    </div>
+
+    <script>
+        /* Same test comment dataset */
+        const commentData = {
+            1: {
+                replies: {
+                    10: {
+                        author: "alice", time: "2h ago", text: "This is actually a great point.", replies: {
+                            11: {
+                                author: "bob", time: "1h ago", text: "I disagree. Here's why...", replies: {
+                                    12: {
+                                        author: "charlie", time: "50m ago", text: "Bob is wrong. Source: I made it up.", replies: {
+                                            13: { author: "dave", time: "40m ago", text: "Classic Reddit moment", replies: {} },
+                                            14: { author: "eve", time: "35m ago", text: "This thread is gold", replies: {} }
+                                        }
+                                    },
+                                    15: {
+                                        author: "frank", time: "45m ago", text: "Can we all relax?", replies: {
+                                            16: { author: "grace", time: "30m ago", text: "No.", replies: {} }
+                                        }
+                                    }
+                                }
+                            },
+                            17: { author: "hank", time: "1h 30m ago", text: "Upvoted for visibility", replies: {} }
+                        }
+                    },
+                    20: {
+                        author: "india", time: "2h ago", text: "Counterpoint: no.", replies: {
+                            21: { author: "juliet", time: "1h 50m ago", text: "This but unironically", replies: {} },
+                            22: { author: "kevin", time: "1h 45m ago", text: "Based", replies: {} }
+                        }
+                    },
+                    30: {
+                        author: "laura", time: "1h ago", text: "Best thread all week", replies: {
+                            31: {
+                                author: "mike", time: "55m ago", text: "Same", replies: {
+                                    32: {
+                                        author: "nina", time: "50m ago", text: "Same", replies: {
+                                            33: { author: "oscar", time: "45m ago", text: "Same", replies: {} }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    40: {
+                        author: "paul", time: "1h 20m ago", text: "Anyone else see the typo?", replies: {
+                            41: { author: "quinn", time: "1h 10m ago", text: "Yes, it hurts my soul", replies: {} }
+                        }
+                    }
+                }
+            }
+        };
+
+        function loadReplies(btn, parentId) {
+            const container = btn.closest('.comment').querySelector(".comment-thread");
+            const parent = btn.closest('.comment');
+            const depth = parseInt(parent.classList[1].split('-')[1]) + 1;
+
+            const replies = commentData[parentId]?.replies || {};
+            let html = "";
+
+            for (const id in replies) {
+                const c = replies[id];
+                const hasReplies = Object.keys(c.replies).length > 0;
+
+                html += `
+      <div class="comment depth-${depth}" data-id="${id}">
+        <div class="thread-line"></div>
+        <div class="thread-connector"></div>
+
+        <div class="comment-body">
+          <div class="comment-header">
+            <span class="author">@${c.author}</span>
+            <span class="time">${c.time}</span>
+          </div>
+          <div class="comment-text">${c.text}</div>
+
+          <div class="comment-actions">
+            <button>↑ 4</button>
+            <button>↓</button>
+            <button onclick="replyTo(this)">Reply</button>
+          </div>
+
+          ${hasReplies ? `<div class="load-replies" onclick="loadReplies(this, ${id})">↓ Load ${Object.keys(c.replies).length} repl${Object.keys(c.replies).length > 1 ? "ies" : "y"}</div>` : ""}
+        </div>
+
+        <div class="comment-thread"></div>
+      </div>
+    `;
+            }
+
+            container.innerHTML = html;
+            btn.remove();
+        }
+
+        function toggleCollapse(bar) {
+            const parent = bar.closest(".comment");
+            const body = parent.querySelector(".comment-body");
+            const thread = parent.querySelector(".comment-thread");
+
+            const collapsed = thread.style.display === "none";
+            thread.style.display = collapsed ? "block" : "none";
+            body.style.opacity = collapsed ? "1" : "0.5";
+        }
+
+        function replyTo(btn) {
+            alert("Reply box here!");
+        }
+    </script>
+
+</body>
+
+</html>

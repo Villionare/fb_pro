@@ -1,8 +1,12 @@
-import server from "../config";
+// import server from "../config";
 
-const fetchData = async (setDBData) => {
-    const data = await server.get('/data');
-    setDBData(data);
-}
+// interface dataType {
 
-export default fetchData;
+// }
+
+// const fetchData = async (setDBData: (data: any) => void) => {
+//     const data = await server.get('/data');
+//     setDBData(data);
+// }
+
+// export default fetchData;

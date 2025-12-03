@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import server from "../api/config.js";
+import server from "../api/config";
 import axios from "axios";
 
 interface SessionData {
